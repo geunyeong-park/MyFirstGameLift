@@ -1,0 +1,1 @@
+https://myfirstgamelift.auth.ap-northeast-2.amazoncognito.com/login?client_id=6duvt42v21cn15hslvb7lujete&response_type=code&scope=aws.cognito.signin.user.admin+email+myfirst.gamelift.api/access+openid+phone+profile&redirect_uri=https://1t9y6aiuha.execute-api.ap-northeast-2.amazonaws.com/test/getsigninresult
