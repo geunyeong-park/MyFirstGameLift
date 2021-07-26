@@ -15,7 +15,7 @@ void UMyFirstGameLiftGameInstance::Shutdown() {
 	Super::Shutdown();
 
 	if (AccessToken.Len() > 0) {
-		TSharedRef<IHttpRequest> InvalidateTokensRequest = HttpModule->CreateRequest();
+		TSharedRef<IHttpRequest, ESPMode::ThreadSafe> InvalidateTokensRequest = HttpModule->CreateRequest();
 		InvalidateTokensRequest->SetURL(ApiUrl + "/invalidatetokens");
 		InvalidateTokensRequest->SetVerb("GET");
 		InvalidateTokensRequest->SetHeader("Content-Type", "application/json");
@@ -29,10 +29,10 @@ void UMyFirstGameLiftGameInstance::SetCognitoTokens(FString NewAccessToken, FStr
 	IdToken = NewIdToken;
 	RefreshToken = NewRefreshToken;
 
-	//UE_LOG(LogTemp, Warning, TEXT("access token: %s"), *AccessToken);
-	//UE_LOG(LogTemp, Warning, TEXT("refresh token: %s"), *RefreshToken);
+	UE_LOG(LogTemp, Warning, TEXT("access token: %s"), *AccessToken);
+	UE_LOG(LogTemp, Warning, TEXT("refresh token: %s"), *RefreshToken);
 
-	GetWorld()->GetTimerManager().SetTimer(RetrieveNewTokensHandle, this, &MyFirstGameLiftGameInstance::RetrieveNewTokens, 1.0f, false, 3300.0f);
+	GetWorld()->GetTimerManager().SetTimer(RetrieveNewTokensHandle, this, &UMyFirstGameLiftGameInstance::RetrieveNewTokens, 1.0f, false, 60.0f);
 }
 
 void UMyFirstGameLiftGameInstance::RetrieveNewTokens() {
@@ -44,8 +44,8 @@ void UMyFirstGameLiftGameInstance::RetrieveNewTokens() {
 		TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&RequestBody);
 
 		if (FJsonSerializer::Serialize(RequestObj.ToSharedRef(), Writer)) {
-			TSharedRef<IHttpRequest> RetrieveNewTokensRequest = HttpModule->CreateRequest();
-			RetrieveNewTokensRequest->OnProcessRequestComplete().BindUObject(this, &MyFirstGameLiftGameInstance::OnRetrieveNewTokensResponseReceived);
+			TSharedRef<IHttpRequest, ESPMode::ThreadSafe> RetrieveNewTokensRequest = HttpModule->CreateRequest();
+			RetrieveNewTokensRequest->OnProcessRequestComplete().BindUObject(this, &UMyFirstGameLiftGameInstance::OnRetrieveNewTokensResponseReceived);
 			RetrieveNewTokensRequest->SetURL(ApiUrl + "/retrievenewtokens");
 			RetrieveNewTokensRequest->SetVerb("POST");
 			RetrieveNewTokensRequest->SetHeader("Content-Type", "application/json");
@@ -54,7 +54,7 @@ void UMyFirstGameLiftGameInstance::RetrieveNewTokens() {
 			RetrieveNewTokensRequest->ProcessRequest();
 		}
 		else {
-			GetWorld()->GetTimerManager().SetTimer(RetrieveNewTokensHandle, this, &MyFirstGameLiftGameInstance::RetrieveNewTokens, 1.0f, false, 30.0f);
+			GetWorld()->GetTimerManager().SetTimer(RetrieveNewTokensHandle, this, &UMyFirstGameLiftGameInstance::RetrieveNewTokens, 1.0f, false, 30.0f);
 		}
 	}
 }
@@ -69,10 +69,10 @@ void UMyFirstGameLiftGameInstance::OnRetrieveNewTokensResponseReceived(FHttpRequ
 			}
 		}
 		else {
-			GetWorld()->GetTimerManager().SetTimer(RetrieveNewTokensHandle, this, &MyFirstGameLiftGameInstance::RetrieveNewTokens, 1.0f, false, 30.0f);
+			GetWorld()->GetTimerManager().SetTimer(RetrieveNewTokensHandle, this, &UMyFirstGameLiftGameInstance::RetrieveNewTokens, 1.0f, false, 30.0f);
 		}
 	}
 	else {
-		GetWorld()->GetTimerManager().SetTimer(RetrieveNewTokensHandle, this, &MyFirstGameLiftGameInstance::RetrieveNewTokens, 1.0f, false, 30.0f);
+		GetWorld()->GetTimerManager().SetTimer(RetrieveNewTokensHandle, this, &UMyFirstGameLiftGameInstance::RetrieveNewTokens, 1.0f, false, 30.0f);
 	}
 }
