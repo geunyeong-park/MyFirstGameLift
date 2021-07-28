@@ -18,6 +18,8 @@ public:
 
 	virtual void Shutdown() override;
 
+	virtual void Init() override;
+
 	UPROPERTY()
 		FString AccessToken;
 
@@ -28,7 +30,15 @@ public:
 		FString RefreshToken;
 
 	UPROPERTY()
+		FString MatchmakingTicketId;
+
+	UPROPERTY()
 		FTimerHandle RetrieveNewTokensHandle;
+
+	UPROPERTY()
+		FTimerHandle GetResponseTimeHandle;
+
+	TDoubleLinkedList<float> PlayerLatencies;
 
 	UFUNCTION()
 		void SetCognitoTokens(FString NewAccessToken, FString NewIdToken, FString NewRefreshToken);
@@ -39,8 +49,15 @@ private:
 	UPROPERTY()
 		FString ApiUrl;
 
+	UPROPERTY()
+		FString RegionCode;
+
 	UFUNCTION()
 		void RetrieveNewTokens();
 
+	UFUNCTION()
+		void GetResponseTime();
+
 	void OnRetrieveNewTokensResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+	void OnGetResponseTimeResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 };
